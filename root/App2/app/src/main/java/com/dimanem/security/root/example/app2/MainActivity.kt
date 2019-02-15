@@ -12,38 +12,48 @@ import java.io.File
 import java.io.IOException
 import java.io.StringReader
 
-
 class MainActivity : AppCompatActivity() {
+
+  private var sharedPrefsFile: File? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
 
-    val app1SharedPrefsFile = getSharedPrefsFile()
-    if (app1SharedPrefsFile != null) {
-      etApp1Username.setText(getUsername(app1SharedPrefsFile))
+    sharedPrefsFile = getSharedPrefsFileForPackage(APP1_PACKAGE_NAME)
+  }
+
+  override fun onResume() {
+    super.onResume()
+    sharedPrefsFile?.let {
+      etApp1Username.text = getUsername(it)
     }
   }
 
-  private fun getSharedPrefsFile(): File? {
+  private fun getSharedPrefsFileForPackage(packageName: String): File? {
     try {
-      val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(
-          createPackageContext(APP1_PACKAGE_NAME, 0))
+      // Get the relevant package context
+      val sharedPrefs = PreferenceManager
+          .getDefaultSharedPreferences(createPackageContext(packageName, 0))
 
+      // At this point we can't read the shared preferences yet
+      // Trying to call
+
+      // Make the corresponding file accessible
       val field = sharedPrefs.javaClass.getDeclaredField("mFile")
       if (!field.isAccessible) {
         field.isAccessible = true
       }
       val sharedPrefsFile = field.get(sharedPrefs as Any) as File
 
-      val commandBuilder = StringBuilder().apply {
+      val cmdGiveReadWritePermissions = StringBuilder().apply {
         append("chmod -R 0777 \"")
         append(sharedPrefsFile)
         append("\"")
-      }
-
+      }.toString()
       val runtime = Runtime.getRuntime()
-      runtime.exec(arrayOf("su", "-c", commandBuilder.toString())).waitFor()
+      runtime.exec(arrayOf("su", "-c", cmdGiveReadWritePermissions)).waitFor()
+
       return sharedPrefsFile
     } catch (e: Exception) {
       Toast.makeText(this,
@@ -53,6 +63,9 @@ class MainActivity : AppCompatActivity() {
     return null
   }
 
+  // For simplicity, let's assume that the shared prefs file contains
+  // only 1 entry and it is the entry that we need.
+  // "Normally" one would parse the xml to a Map and ready the values
   private fun getUsername(sharedPrefsFile: File): String {
     try {
       val runtime = Runtime.getRuntime()

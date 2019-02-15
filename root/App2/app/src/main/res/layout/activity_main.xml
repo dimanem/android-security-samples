@@ -8,13 +8,16 @@
     tools:context=".MainActivity"
     >
 
-  <EditText
+  <TextView
       android:id="@+id/etApp1Username"
       android:layout_width="0dp"
       android:layout_height="wrap_content"
       android:layout_marginEnd="8dp"
       android:layout_marginStart="16dp"
-      android:text=""
+      android:text="Unknown"
+      android:textStyle="normal"
+      android:textColor="@android:color/black"
+      android:textSize="25sp"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintLeft_toLeftOf="parent"
