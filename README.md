@@ -1,4 +1,4 @@
-# Root Example
+# Rooted devices
 
 ### Disclaimer
 The purpose of this example to demonstrate the risk of your app running on a rooted device and how straightforward it can be for a hacker to access your private information.

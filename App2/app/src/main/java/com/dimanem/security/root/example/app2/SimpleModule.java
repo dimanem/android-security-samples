@@ -12,11 +12,11 @@ public class SimpleModule implements IXposedHookLoadPackage {
 
   @Override public void handleLoadPackage(XC_LoadPackage.LoadPackageParam loadPackageParam) {
     // Hook only my app
-    if (!loadPackageParam.packageName.equals("com.dimanem.security.root.example.app1")) {
+    if (!loadPackageParam.packageName.equals("com.dimanem.security.example.demo")) {
       return;
     }
 
-    XposedBridge.log("Hooking GoodApp");
+    XposedBridge.log("Hooking Gett Security Demo App");
 
     ClassLoader classLoader = loadPackageParam.classLoader;
     hookAppMethod(classLoader);
@@ -29,7 +29,7 @@ public class SimpleModule implements IXposedHookLoadPackage {
    */
   private void hookAppMethod(ClassLoader classLoader) {
     try {
-      XposedHelpers.findAndHookMethod("com.dimanem.security.root.example.app1.SecurityUtils",
+      XposedHelpers.findAndHookMethod("com.dimanem.security.example.demo.SecurityUtils",
           classLoader, "isRootedDevice", (Object[]) new Object[] {
               new XC_MethodHook() {
 

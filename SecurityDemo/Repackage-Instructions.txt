@@ -1,0 +1,19 @@
+# Under artifacts we have the apk
+cd artifacts
+
+# Decompile
+apktool d SecurityDemo.apk
+
+# Edit (change base url + app name / label + testOnly = false)
+
+# Repackage: [keystore 1-6]
+apktool b -f -d SecurityDemo
+mv SecurityDemo/dist/SecurityDemo.apk SecurityDemo2.apk
+jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ../hacker.keystore SecurityDemo2.apk alias_name
+jarsigner -verify -verbose -certs SecurityDemo2.apk
+
+# Uninstall original
+adb shell pm uninstall com.dimanem.security.example.demo
+
+# Install New
+adb install SecurityDemo2.apk
