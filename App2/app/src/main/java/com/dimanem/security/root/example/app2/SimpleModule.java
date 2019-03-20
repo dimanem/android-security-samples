@@ -11,56 +11,23 @@ import java.io.File;
 public class SimpleModule implements IXposedHookLoadPackage {
 
   @Override public void handleLoadPackage(XC_LoadPackage.LoadPackageParam loadPackageParam) {
-    // Hook only my app
     if (!loadPackageParam.packageName.equals("com.dimanem.security.example.demo")) {
       return;
     }
 
-    XposedBridge.log("Hooking Gett Security Demo App");
-
-    ClassLoader classLoader = loadPackageParam.classLoader;
-    hookAppMethod(classLoader);
-    hookOSMethod(classLoader);
-  }
-
-  /**
-   * Hook the app method so that RootChecker.isDeviceRooted() = false.
-   * Attacker knows the app method name doing the root check.
-   */
-  private void hookAppMethod(ClassLoader classLoader) {
+    // Manipulate File.exist(su) to return false for our SecurityDemo app
+    // Hacker might use this technique when your code is well obfuscated
+    // and he doesn't find your root check.
     try {
-      XposedHelpers.findAndHookMethod("com.dimanem.security.example.demo.SecurityUtils",
-          classLoader, "isRootedDevice", (Object[]) new Object[] {
-              new XC_MethodHook() {
+      XposedHelpers.findAndHookMethod("java.io.File", loadPackageParam.classLoader, "exists",
+          new XC_MethodHook() {
 
-                protected void afterHookedMethod(MethodHookParam methodHookParam) {
-                  methodHookParam.setResult(false);
-                }
+            protected void afterHookedMethod(MethodHookParam methodHookParam) {
+              String file = ((File) methodHookParam.thisObject).getAbsolutePath();
+              if (file.endsWith("/su") || file.endsWith("/Superuser.apk")) {
+                methodHookParam.setResult(false);
               }
-          });
-    } catch (Exception e) {
-      XposedBridge.log(e);
-    }
-  }
-
-  /**
-   * Hook Android call - File.exist
-   * Attacker doesn't know the app method name but knows how root check is done and
-   * hooks the internal logic.
-   */
-  private void hookOSMethod(ClassLoader classLoader) {
-    try {
-      XposedHelpers.findAndHookMethod("java.io.File", classLoader, "exists",
-          (Object[]) new Object[] {
-              new XC_MethodHook() {
-
-                protected void afterHookedMethod(MethodHookParam methodHookParam) {
-                  String string = ((File) methodHookParam.thisObject).getAbsolutePath();
-                  if (string.endsWith("/su") || string.endsWith("/Superuser.apk")) {
-                    methodHookParam.setResult(false);
-                  }
-                }
-              }
+            }
           });
     } catch (Throwable throwable) {
       XposedBridge.log(throwable);

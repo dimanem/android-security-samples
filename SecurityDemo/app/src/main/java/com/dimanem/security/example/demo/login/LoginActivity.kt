@@ -6,52 +6,60 @@ import android.annotation.TargetApi
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
 import android.text.TextUtils
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
+import com.dimanem.security.example.demo.ROOT_BLOCK_ENABLED
+import com.dimanem.security.example.demo.BaseActivity
 import com.dimanem.security.example.demo.MainActivity
 import com.dimanem.security.example.demo.R
 import kotlinx.android.synthetic.main.activity_login.*
 import org.koin.android.viewmodel.ext.android.viewModel
 import timber.log.Timber
+import java.io.File
 
-class LoginActivity : AppCompatActivity() {
-
-  companion object {
-    const val INTENT_ACTION_LOGOUT = "INTENT_ACTION_LOGOUT"
-  }
-
-  private val loginViewModel: LoginViewModel by viewModel()
+class LoginActivity : BaseActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_login)
 
-    if (intent.action == INTENT_ACTION_LOGOUT) {
-      Timber.i("Logout")
-      loginViewModel.logout()
-    } else if (loginViewModel.isLoggedIn()) {
-      Timber.i("Auto Login")
-      launchMainActivity()
-      return
+    // Root check
+    if (ROOT_BLOCK_ENABLED && isRootedDevice()) {
+      showErrorDialog(
+        "Root detected!",
+        "This app can't be used on a rooted device",
+        false
+      )
     }
 
-    loginViewModel.apply {
-      loginSuccessLiveData.observe({ lifecycle }) {
-        Timber.i("Login success!")
-        showProgress(false)
-        launchMainActivity()
-      }
-      loginFailedLiveData.observe({ lifecycle }) {
-        Timber.e("Login failed with error ${it?.localizedMessage}")
-        showProgress(false)
-        showSignInErrorDialog(it?.localizedMessage ?: "Unknown error!")
+    initViews()
+    initObservations()
+  }
+
+  private fun isRootedDevice() : Boolean {
+    val rootFiles = arrayOf(
+      "/system/app/Superuser.apk",
+      "/sbin/su",
+      "/system/bin/su",
+      "/system/xbin/su",
+      "/data/local/xbin/su",
+      "/data/local/bin/su",
+      "/system/sd/xbin/su",
+      "/system/bin/failsafe/su",
+      "/data/local/su",
+      "/su/bin/su"
+    )
+    for (path in rootFiles) {
+      if (File(path).exists()) {
+        return true
       }
     }
+    return false
+  }
 
+  private fun initViews() {
     // Set up the login form.
     password.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
       if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
@@ -62,6 +70,21 @@ class LoginActivity : AppCompatActivity() {
     })
 
     btnSignIn.setOnClickListener { attemptLogin() }
+  }
+
+  private fun initObservations() {
+    loginViewModel.apply {
+      loginSuccessLiveData.observe({ lifecycle }) {
+        Timber.i("Login success!")
+        showProgress(false)
+        launchMainActivity()
+      }
+      loginFailedLiveData.observe({ lifecycle }) {
+        Timber.e("Login failed with error ${it?.localizedMessage}")
+        showProgress(false)
+        showErrorDialog("Sign In error", it?.localizedMessage ?: "Unknown error!")
+      }
+    }
   }
 
   private fun launchMainActivity() {
@@ -80,21 +103,21 @@ class LoginActivity : AppCompatActivity() {
     password.error = null
 
     // Store values at the time of the login attempt.
-    val emailStr = username.text.toString()
+    val userIdStr = username.text.toString()
     val passwordStr = password.text.toString()
 
     var cancel = false
     var focusView: View? = null
 
     // Check for a valid password, if the user entered one.
-    if (!TextUtils.isEmpty(passwordStr) && !isPasswordValid(passwordStr)) {
+    if (TextUtils.isEmpty(passwordStr) || !isPasswordValid(passwordStr)) {
       password.error = getString(R.string.error_invalid_password)
       focusView = password
       cancel = true
     }
 
     // Check for a valid email address.
-    if (TextUtils.isEmpty(emailStr)) {
+    if (TextUtils.isEmpty(userIdStr)) {
       username.error = getString(R.string.error_field_required)
       focusView = username
       cancel = true
@@ -108,7 +131,7 @@ class LoginActivity : AppCompatActivity() {
       // Show a progress spinner, and kick off a background task to
       // perform the user login attempt.
       showProgress(true)
-      loginViewModel.login(emailStr, passwordStr)
+      loginViewModel.login(userIdStr, passwordStr)
     }
   }
 
@@ -154,13 +177,9 @@ class LoginActivity : AppCompatActivity() {
     }
   }
 
-  private fun showSignInErrorDialog(error: String) {
-    AlertDialog.Builder(this)
-      .setTitle("Sign in error")
-      .setMessage(error)
-      .setCancelable(true)
-      .setPositiveButton("Ok") { dialog, _ -> dialog.dismiss() }
-      .create()
-      .show()
+  companion object {
+    const val INTENT_ACTION_LOGOUT = "INTENT_ACTION_LOGOUT"
   }
+
+  private val loginViewModel: LoginViewModel by viewModel()
 }

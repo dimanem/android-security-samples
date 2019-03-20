@@ -9,36 +9,47 @@
     >
 
   <TextView
-      android:id="@+id/etApp1Username"
-      android:layout_width="0dp"
-      android:layout_height="wrap_content"
-      android:layout_marginEnd="8dp"
-      android:layout_marginStart="16dp"
-      android:text="\?"
-      android:textStyle="normal"
-      android:textColor="@android:color/black"
-      android:textSize="25sp"
-      android:gravity="center"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintLeft_toLeftOf="parent"
-      app:layout_constraintStart_toEndOf="@+id/tvLabel"
-      app:layout_constraintTop_toTopOf="parent"
-      />
-
-  <TextView
-      android:id="@+id/tvLabel"
+      android:id="@+id/tvSecret"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginStart="16dp"
-      android:text="Token:"
-      android:textColor="@color/colorPrimaryDark"
-      android:textSize="20sp"
-      android:textStyle="bold"
-      app:layout_constraintBottom_toBottomOf="parent"
+      android:layout_marginEnd="8dp"
+      android:layout_marginStart="8dp"
+      android:layout_marginTop="16dp"
+      android:textColor="@android:color/black"
+      android:textSize="15sp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.0"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-
+      tools:text="Secret: AKJSA91Jsi192931ksa"
       />
+
+  <include
+      layout="@layout/layout_user_details"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="8dp"
+      android:layout_marginEnd="8dp"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/tvSecret"
+      >
+  </include>
+
+  <Button
+      android:id="@+id/btnGetUserData"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginEnd="8dp"
+      android:layout_marginStart="8dp"
+      android:layout_marginTop="8dp"
+      android:text="Fetch User Info"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.0"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/tvSecret"
+      />
+
 
 </android.support.constraint.ConstraintLayout>

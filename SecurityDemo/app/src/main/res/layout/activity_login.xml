@@ -78,6 +78,8 @@
           android:layout_marginTop="16dp"
           android:text="@string/action_sign_in"
           android:textStyle="bold"
+          android:textColor="@android:color/white"
+          android:background="@color/colorAccent"
           style="?android:textAppearanceSmall"
           />
 

@@ -5,21 +5,32 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 28
-    defaultConfig {
-        applicationId "com.dimanem.security.root.example.app2"
-        minSdkVersion 17
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+  compileSdkVersion 28
+  defaultConfig {
+    applicationId "com.dimanem.security.example.malicious"
+    minSdkVersion 17
+    targetSdkVersion 28
+    versionCode 1
+    versionName "1.0"
+    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+  }
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
     }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
+  }
+
+  compileOptions {
+    targetCompatibility = "8"
+    sourceCompatibility = "8"
+  }
+
+  applicationVariants.all { variant ->
+    variant.outputs.all {
+      outputFileName = "MaliciousApp.apk"
     }
+  }
 }
 
 dependencies {
@@ -30,7 +41,16 @@ dependencies {
   testImplementation 'junit:junit:4.12'
   androidTestImplementation 'com.android.support.test:runner:1.0.2'
   androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+  // Xposed
   compileOnly 'de.robv.android.xposed:api:82'
   compileOnly 'de.robv.android.xposed:api:82:sources'
+
+  // XML
   implementation files('libs/java-json.jar')
+
+  // OKHttp
+  implementation 'com.squareup.okhttp3:okhttp:3.14.0'
+
+  implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
 }

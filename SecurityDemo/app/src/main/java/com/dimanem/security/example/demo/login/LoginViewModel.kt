@@ -4,7 +4,8 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import com.dimanem.security.example.demo.api.APIService
-import com.dimanem.security.example.demo.util.Storage
+import com.dimanem.security.example.demo.api.LoginResponse
+import com.dimanem.security.example.demo.util.TokenStorage
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -18,7 +19,7 @@ interface ILoginViewModel {
   fun isLoggedIn(): Boolean
 }
 
-class LoginViewModel(private val storage: Storage, private val apiService: APIService) :
+class LoginViewModel(private val storage: TokenStorage, private val apiService: APIService) :
   ILoginViewModel, ViewModel() {
 
   override val loginSuccessLiveData = MutableLiveData<Unit>()

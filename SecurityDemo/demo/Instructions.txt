@@ -1,0 +1,100 @@
+Charles Root certificate:
+sha256/JiUCNyifF764KjK2gqPFgb3hlSPoQc5GN1W7Vc0G8RA=
+
+
+BEFORE STARTING THE DEMO!!!
+- Uninstall Malicious App and restart device
+- ROOT_BLOCK_ENABLED = false
+- Delete demo/SecurityDemo,SecurityDemo2.apk
+- Launch Nexus 5 genny and charles
+
+
+###########################################################################
+Demo 1: Bypassing SSL Pinning using APK manipulation
+###########################################################################
+
+Prerequisites:
+  * Device with charles root certificate
+
+###########################################################################
+
+Apk Manipulation (modify SSL public key):
+Guide: https://blog.bramp.net/post/2015/08/01/decompile-and-recompile-android-apk/
+
+- Decompile:
+apktool d SecurityDemo.apk
+
+- Replace pinned certificate with charles certificate (search for SHA256)
+
+
+- Repackage:
+(SecurityDemo2 singed with hacker.keystore)
+./repackage.sh
+
+- Uninstall:
+adb shell pm uninstall com.dimanem.security.example.demo
+
+- Install repackaged:
+adb install -r SecurityDemo2.apk
+
+- Login: success + decrypted network
+
+~ Uninstall
+
+
+
+
+
+
+
+
+
+###########################################################################
+Demo 2: Rooted device - Bot stealing secure token and calling our APIs
+###########################################################################
+
+Prerequisites:
+  * Rooted device
+  * ROOT_BLOCK_ENABLED = false
+###########################################################################
+
+- Login to SecurityDemo
+- Open malicious app - should request root access and call api
+- Optional: show traffic in charles
+- Block root:
+  * ROOT_BLOCK_ENABLED = true
+  * Show Root check code in LoginActivity
+  * Rerun, should see popup
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###########################################################################
+Demo 3: Bypassing root check with Xposed
+###########################################################################
+
+Prerequisites:
+  * Rooted device
+  * Xposed installed on device
+###########################################################################
+
+- Enable MaliciousApp module in Xposed Installer
+- Restart device
+- Open SecurityDemo - should not see root block
