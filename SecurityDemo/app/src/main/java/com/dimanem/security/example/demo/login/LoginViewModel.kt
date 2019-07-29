@@ -27,8 +27,6 @@ class LoginViewModel(private val storage: TokenStorage, private val apiService: 
 
   override fun login(userName: String, password: String) {
     val loginStream = apiService.login(userName, password)
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
       .onErrorReturn { LoginResponse().apply { throwable = it } }
       .replay().refCount()
 

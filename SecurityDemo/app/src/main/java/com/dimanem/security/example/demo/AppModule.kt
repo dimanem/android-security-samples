@@ -50,6 +50,6 @@ private fun createApiService(okHttpClient: OkHttpClient): APIService {
     .baseUrl("https://$BASE_URL")
     .client(okHttpClient)
     .addConverterFactory(GsonConverterFactory.create())
-    .addCallAdapterFactory(RxJava2CallAdapterFactory.create()).build()
+    .addCallAdapterFactory(RxJava2CallAdapterFactory.createAsync()).build()
   return retrofit.create(APIService::class.java)
 }
